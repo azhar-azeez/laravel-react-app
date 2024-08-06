@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStateContext } from '../contexts/ContextProvider';
 import { useRef } from 'react';
@@ -10,6 +10,7 @@ export default function Signup() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmationRef = useRef();
+  const [errors, setErrors] = useState(null);
 
   const {setUser, setToken} = useStateContext()
 
@@ -30,11 +31,12 @@ export default function Signup() {
     .then(({data}) => {
         setUser(data.user)
         setToken(data.token)
-    } )
+
+    })
     .catch(err => {
       const response = err.response;
       if (response && response.status === 422) {
-        console.log(response.data.errors);
+        setErrors(response.data.errors);
       }
     })
   }
@@ -46,6 +48,16 @@ export default function Signup() {
           <h1 className="title">
             Register new account
           </h1>
+
+          {errors && <div className="alert">
+            {Object.keys(errors).map(key => (
+              <p key={key}>{errors[key][0]}</p>
+            ))}
+
+          </div>
+
+          }
+
           <input type="text" placeholder="Full Name" ref={nameRef} />
           <input type="email" placeholder="Email Address" ref={emailRef} />
           <input type="password" placeholder="Password" ref={passwordRef} />
